@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../entities/user.entity';
 import { Category } from '../entities/category.entity';
 import { UserCategory } from '../entities/user_category.entity';
-import { SignupDto, CategoryDto } from './auth-dtos';
+import { SignupDto, LoginDto, CategoryDto } from './auth-dtos';
 
 @Injectable()
 export class AuthenticationService {
@@ -58,6 +58,23 @@ export class AuthenticationService {
     };
   }
 
+  async login(loginDto: LoginDto) {
+    const { username, password } = loginDto;
+
+    const user = await this.userRepo.findOne({ where: { username } });
+
+    if (!user) 
+      throw new BadRequestException('User not found');
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch)
+      throw new BadRequestException('Invalid password');
+
+    return {
+      id: user.id,
+      username: user.username,
+    };
+  }
 
   async getCategories(): Promise<CategoryDto[]> {
     const categories = await this.categoryRepo.find();
