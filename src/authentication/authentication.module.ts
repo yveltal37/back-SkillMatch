@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthenticationService } from './service/authentication.service';
 import { AuthenticationController } from './authentication.controller';
 import { AuthTokensService } from './service/tokens.service';
+import { JwtStrategy } from './jwt/jwt.strategy';
 import { User } from '../entities/user.entity';
 
 @Module({
@@ -29,7 +30,7 @@ import { User } from '../entities/user.entity';
       },
     }),
   ],
-  providers: [AuthenticationService, AuthTokensService],
+  providers: [AuthenticationService, AuthTokensService, JwtStrategy],
   controllers: [AuthenticationController],
   exports: [JwtModule, AuthenticationService, AuthTokensService],
 })
