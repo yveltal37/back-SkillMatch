@@ -9,8 +9,8 @@ export type JwtPayload = { sub: number; username: string };
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private configService: ConfigService,
-    private authService: AuthenticationService, 
+    private readonly configService: ConfigService,
+    private readonly authService: AuthenticationService, 
   ) {
     const secret = configService.get<string>('JWT_ACCESS_SECRET');
     if (!secret) {

@@ -18,7 +18,6 @@ import { User } from '../entities/user.entity';
       useFactory: (config: ConfigService): JwtModuleOptions => {
         const secret = config.get<string>('JWT_ACCESS_SECRET');
         const expiresIn = config.get<string>('JWT_ACCESS_EXPIRATION');
-
         if (!secret || !expiresIn) {
           throw new Error('JWT configuration missing in .env');
         }

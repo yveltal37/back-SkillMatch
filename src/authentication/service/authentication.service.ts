@@ -14,11 +14,11 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthenticationService {
   constructor(
     @InjectRepository(User)
-    private userRepo: Repository<User>,
+    private readonly userRepo: Repository<User>,
     @InjectRepository(Category)
     private categoryRepo: Repository<Category>,
     @InjectRepository(UserCategory)
-    private userCategoryRepo: Repository<UserCategory>,
+    private readonly userCategoryRepo: Repository<UserCategory>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly authTokensService: AuthTokensService,

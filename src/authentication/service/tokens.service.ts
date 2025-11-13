@@ -7,8 +7,8 @@ import { JwtSignOptions } from '@nestjs/jwt';
 @Injectable() 
 export class AuthTokensService { 
   constructor( 
-    private jwtService: JwtService, 
-    private configService: ConfigService, 
+    private readonly jwtService: JwtService, 
+    private readonly configService: ConfigService, 
   ) {} 
 
   generateTokens(user: User) { 
