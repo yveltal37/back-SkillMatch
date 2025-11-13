@@ -3,23 +3,17 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../entities/user.entity';
-import { Category } from '../../entities/category.entity';
-import { UserCategory } from '../../entities/user_category.entity';
 import { SignupDto, LoginDto, CategoryDto } from '../auth-dtos';
 import { AuthTokensService } from './tokens.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CategoryService } from '../../category/category.service'; // 👈 מייבאים את הסרוויס
+import { CategoryService } from '../../category/category.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-    @InjectRepository(Category)
-    private categoryRepo: Repository<Category>,
-    @InjectRepository(UserCategory)
-    private readonly userCategoryRepo: Repository<UserCategory>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly authTokensService: AuthTokensService,
