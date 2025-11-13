@@ -19,7 +19,6 @@ export class AuthenticationController {
   }
 
   @Get('categories')
-  @Header('Cache-Control', 'no-cache, no-store, must-revalidate')
   async getCategories(): Promise<CategoryDto[]> {
     return this.authService.getCategories();
   }
