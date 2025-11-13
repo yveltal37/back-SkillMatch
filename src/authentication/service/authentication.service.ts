@@ -9,6 +9,7 @@ import { SignupDto, LoginDto, CategoryDto } from '../auth-dtos';
 import { AuthTokensService } from './tokens.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { CategoryService } from '../../category/category.service'; // 👈 מייבאים את הסרוויס
 
 @Injectable()
 export class AuthenticationService {
@@ -22,6 +23,7 @@ export class AuthenticationService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly authTokensService: AuthTokensService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   async signup(signupDto: SignupDto) {
@@ -48,13 +50,7 @@ export class AuthenticationService {
     });
     const savedUser = await this.userRepo.save(user);
 
-    const categories = await this.categoryRepo.findByIds(categoryIds);
-
-    const userCategories = categories.map(cat => {
-      return this.userCategoryRepo.create({ user: savedUser, category: cat });
-    });
-
-    await this.userCategoryRepo.save(userCategories);
+    this.categoryService.assignUserCategories(user, signupDto.categoryIds);
 
     const tokens = this.authTokensService.generateTokens(savedUser);
     return tokens;
@@ -77,11 +73,7 @@ export class AuthenticationService {
   }
 
   async getCategories(): Promise<CategoryDto[]> {
-    const categories = await this.categoryRepo.find();
-    return categories.map(c => ({
-      id: c.id,
-      name: c.name,
-    }));
+    return this.categoryService.getAllCategories();
   }
 
   async findById(id: number) {
@@ -97,7 +89,6 @@ export class AuthenticationService {
       const refreshSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
       const payload = this.jwtService.verify(refreshToken, { secret: refreshSecret });
       const user = await this.userRepo.findOne({ where: { id: payload.sub } });
-
       if (!user) throw new BadRequestException('User not found');
 
       const tokens = this.authTokensService.generateTokens(user);

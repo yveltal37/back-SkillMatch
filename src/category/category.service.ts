@@ -16,7 +16,7 @@ export class CategoryService {
     private readonly userCategoryRepo: Repository<UserCategory>,
   ) {}
 
-  async createCategory(name: string): Promise<Category> {
+  async createCategory(name: string) {
     if (!name || !name.trim()) 
       throw new BadRequestException('Category name is required');
 
@@ -28,7 +28,7 @@ export class CategoryService {
     return this.categoryRepo.save(category);
   }
 
-  async deleteCategory(id: number): Promise<void> {
+  async deleteCategory(id: number) {
     const category = await this.categoryRepo.findOne({ where: { id } });
     if (!category) 
       throw new NotFoundException('Category not found');
@@ -36,5 +36,38 @@ export class CategoryService {
     await this.userCategoryRepo.delete({ category: { id } });
 
     await this.categoryRepo.delete(id);
+  }
+
+  async getAllCategories() {
+    const categories = await this.categoryRepo.find({ order: { id: 'ASC' } });
+
+    return categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+    }));
+  }
+
+  async assignUserCategories(user: User, categoryIds: number[]) {
+    const categories = await this.categoryRepo.findByIds(categoryIds);
+
+    const userCategories = categories.map((category) =>
+      this.userCategoryRepo.create({ user, category }),
+    );
+
+    await this.userCategoryRepo.save(userCategories);
+  }
+
+
+  async getUserCategories(userId: number): Promise<Category[]> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) 
+      throw new NotFoundException('User not found');
+
+    const userCategories = await this.userCategoryRepo.find({
+      where: { user: { id: userId } },
+      relations: ['category'],
+    });
+
+    return userCategories.map((uc) => uc.category);
   }
 }

@@ -7,11 +7,13 @@ import { AuthenticationController } from './authentication.controller';
 import { AuthTokensService } from './service/tokens.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { User } from '../entities/user.entity';
+import { CategoryModule } from '../category/category.module';
 
 @Module({
   imports: [
     ConfigModule, 
     TypeOrmModule.forFeature([User]),
+    CategoryModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
