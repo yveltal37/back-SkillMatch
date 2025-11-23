@@ -44,10 +44,10 @@ export class AuthenticationService {
     });
     const savedUser = await this.userRepo.save(user);
 
-    this.categoryService.assignUserCategories(user, signupDto.categoryIds);
+    await this.categoryService.assignUserCategories(user, signupDto.categoryIds);
 
     const tokens = this.authTokensService.generateTokens(savedUser);
-    return tokens;
+    return {tokens, user: {username: savedUser.username, isAdmin: savedUser.isAdmin}};
   }
 
   async login(loginDto: LoginDto) {
@@ -63,7 +63,7 @@ export class AuthenticationService {
 
     const tokens = this.authTokensService.generateTokens(user);
     
-    return tokens;
+    return {tokens, user: {username: user.username, isAdmin: user.isAdmin}};
   }
 
   async getCategories(): Promise<CategoryDto[]> {
@@ -86,7 +86,7 @@ export class AuthenticationService {
       if (!user) throw new BadRequestException('User not found');
 
       const tokens = this.authTokensService.generateTokens(user);
-      return { tokens };
+      return tokens;
     } catch (error) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }

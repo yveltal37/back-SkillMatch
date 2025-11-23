@@ -4,9 +4,16 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { CategoryModule } from './category/category.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, AuthenticationModule, CategoryModule, ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    DatabaseModule,
+    AuthenticationModule,
+    CategoryModule, ],
   controllers: [AppController],
   providers: [AppService],
 })

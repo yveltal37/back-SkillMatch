@@ -12,7 +12,7 @@ export class CategoryController {
     return this.categoryService.createCategory(categoryName);
   }
 
-  @Delete(':id')
+  @Delete('delete:id')
   async deleteCategory(@Param('id', ParseIntPipe) categoryId: number) {
     return this.categoryService.deleteCategory(categoryId);
   }

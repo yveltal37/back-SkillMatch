@@ -23,7 +23,8 @@ export class AuthTokensService {
 
     const payload = {  
       username: user.username,  
-      sub: user.id,  
+      sub: user.id, 
+      isAdmin: user.isAdmin 
     }; 
 
     const accessOptions = { 
