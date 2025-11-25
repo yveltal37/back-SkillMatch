@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UserCategory } from './user_category.entity';
 import { UserChallenge } from './user_challenge.entity';
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -19,7 +20,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({ default: 'false' })
+  @Column({ default: false })
   isAdmin: boolean;
 
   @OneToMany(() => UserCategory, (uc) => uc.user)

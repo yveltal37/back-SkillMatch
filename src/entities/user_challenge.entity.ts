@@ -17,7 +17,4 @@ export class UserChallenge {
 
   @Column({ default: false })
   completed: boolean;
-
-  @Column({ type: 'datetime', nullable: true })
-  completedAt: Date;
 }

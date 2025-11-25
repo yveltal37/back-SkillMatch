@@ -7,12 +7,13 @@ import {
 } from 'typeorm';
 import { ChallengeCategory } from './challenge_category.entity';
 import { UserChallenge } from './user_challenge.entity';
+
 @Entity('challenges')
 export class Challenge {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({unique: true})
   name: string;
 
   @Column('text')
