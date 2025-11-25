@@ -94,4 +94,25 @@ export class ChallengeService {
 
     return { message: 'Challenge deleted successfully' };
   }
+
+  async getUserChallenges(userId: number) {
+    const now = new Date();
+
+    const expiredUserChallenges = await this.userChallengeRepo.find({
+      where: {
+        user: { id: userId },
+        challenge: { expirationDate: LessThan(now) },
+      },
+      relations: ['challenge'],
+    });
+
+    const expiredChallenges = expiredUserChallenges.map((uc) => uc.challenge);
+    await this.challengeRepo.remove(expiredChallenges);
+    
+
+    return this.userChallengeRepo.find({
+      where: { user: { id: userId } },
+      relations: ['challenge'],
+    });
+  }
 }
