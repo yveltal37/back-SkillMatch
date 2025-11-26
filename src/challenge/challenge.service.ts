@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In, LessThan } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Challenge } from '../entities/challenge.entity';
 import { Category } from '../entities/category.entity';
 import { ChallengeCategory } from '../entities/challenge_category.entity';
