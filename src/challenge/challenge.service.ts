@@ -11,6 +11,7 @@ import { ChallengeCategory } from '../entities/challenge_category.entity';
 import { User } from '../entities/user.entity';
 import { UserChallenge } from '../entities/user_challenge.entity';
 import { UserCategory } from '../entities/user_category.entity';
+import { CreateChallengeDto } from './challenge-dto';
 
 @Injectable()
 export class ChallengeService {
@@ -34,19 +35,16 @@ export class ChallengeService {
     private userCategoryRepo: Repository<UserCategory>,
   ) {}
 
-  async createChallenge(
-    name: string,
-    description: string,
-    expirationDate: Date,
-    categoryIds: number[],
-  ) {
+  async createChallenge(dto: CreateChallengeDto) {
+    const { name, description, expirationDate, categoryIds } = dto;
+
     if (!categoryIds?.length)
       throw new BadRequestException('Categories are required');
 
     const challenge = this.challengeRepo.create({
       name,
       description,
-      expirationDate,
+      expirationDate: new Date(expirationDate),
     });
     const savedChallenge = await this.challengeRepo.save(challenge);
 
@@ -64,7 +62,7 @@ export class ChallengeService {
         }),
       );
     }
-
+    ////////
     const userCategories = await this.userCategoryRepo.find({
       where: {
         category: { id: In(categoryIds) },
@@ -82,7 +80,7 @@ export class ChallengeService {
       }),
     );
     await this.userChallengeRepo.save(userChallenges);
-
+    //////
     return savedChallenge;
   }
 
@@ -108,11 +106,53 @@ export class ChallengeService {
 
     const expiredChallenges = expiredUserChallenges.map((uc) => uc.challenge);
     await this.challengeRepo.remove(expiredChallenges);
-    
 
     return this.userChallengeRepo.find({
       where: { user: { id: userId } },
       relations: ['challenge'],
     });
+  }
+
+  async completeChallengeToggle(userId: number, challengeName: string) {
+    const challenge = await this.challengeRepo.findOne({
+      where: { name: challengeName },
+      relations: ['challengeCategories', 'challengeCategories.category'],
+    });
+    if (!challenge) throw new NotFoundException('Challenge not found');
+
+    const userChallenge = await this.userChallengeRepo.findOne({
+      where: {
+        user: { id: userId },
+        challenge: { id: challenge.id },
+      },
+    });
+    if (!userChallenge)
+      throw new NotFoundException('User does not have this challenge');
+
+    userChallenge.completed = !userChallenge.completed;
+    await this.userChallengeRepo.save(userChallenge);
+
+    for (const cc of challenge.challengeCategories) {
+      //////////////
+      const userCategory = await this.userCategoryRepo.findOne({
+        where: {
+          user: { id: userId },
+          category: { id: cc.category.id },
+        },
+      });
+
+      if (userCategory) {
+        if (userChallenge.completed) userCategory.completedCount++;
+        else
+          userCategory.completedCount = Math.max(
+            0,
+            userCategory.completedCount - 1,
+          );
+
+        await this.userCategoryRepo.save(userCategory);
+      }
+      //////////
+    }
+    return userChallenge;
   }
 }
