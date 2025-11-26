@@ -8,31 +8,22 @@ import { Repository, In, LessThan } from 'typeorm';
 import { Challenge } from '../entities/challenge.entity';
 import { Category } from '../entities/category.entity';
 import { ChallengeCategory } from '../entities/challenge_category.entity';
-import { User } from '../entities/user.entity';
 import { UserChallenge } from '../entities/user_challenge.entity';
-import { UserCategory } from '../entities/user_category.entity';
 import { CreateChallengeDto } from './challenge-dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ChallengeService {
   constructor(
     @InjectRepository(Challenge)
     private challengeRepo: Repository<Challenge>,
-
     @InjectRepository(Category)
     private categoryRepo: Repository<Category>,
-
     @InjectRepository(ChallengeCategory)
     private challengeCategoryRepo: Repository<ChallengeCategory>,
-
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
-
     @InjectRepository(UserChallenge)
     private userChallengeRepo: Repository<UserChallenge>,
-
-    @InjectRepository(UserCategory)
-    private userCategoryRepo: Repository<UserCategory>,
+    private readonly userService: UserService,
   ) {}
 
   async createChallenge(dto: CreateChallengeDto) {
@@ -62,15 +53,7 @@ export class ChallengeService {
         }),
       );
     }
-    ////////
-    const userCategories = await this.userCategoryRepo.find({
-      where: {
-        category: { id: In(categoryIds) },
-      },
-      relations: ['user'],
-    });
-
-    const userIds = userCategories.map((uc) => uc.user.id);
+    const userIds = await this.userService.getUserIdsByCategoryIds(categoryIds);
 
     const userChallenges = userIds.map((userId) =>
       this.userChallengeRepo.create({
@@ -80,7 +63,6 @@ export class ChallengeService {
       }),
     );
     await this.userChallengeRepo.save(userChallenges);
-    //////
     return savedChallenge;
   }
 
@@ -133,25 +115,11 @@ export class ChallengeService {
     await this.userChallengeRepo.save(userChallenge);
 
     for (const cc of challenge.challengeCategories) {
-      //////////////
-      const userCategory = await this.userCategoryRepo.findOne({
-        where: {
-          user: { id: userId },
-          category: { id: cc.category.id },
-        },
-      });
-
-      if (userCategory) {
-        if (userChallenge.completed) userCategory.completedCount++;
-        else
-          userCategory.completedCount = Math.max(
-            0,
-            userCategory.completedCount - 1,
-          );
-
-        await this.userCategoryRepo.save(userCategory);
-      }
-      //////////
+      await this.userService.updateUserCategoryCounter(
+        userId,
+        cc.category.id,
+        userChallenge.completed,
+      );
     }
     return userChallenge;
   }
