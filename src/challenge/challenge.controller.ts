@@ -22,9 +22,9 @@ export class ChallengeController {
     return this.challengeService.createChallenge(dto);
   }
 
-  @Delete('delete/:name')
-  async deleteChallenge(@Param('name') name: string) {
-    return this.challengeService.deleteChallenge(name);
+  @Delete('delete/:id')
+  async deleteChallenge(@Param('id') id:number) {
+    return this.challengeService.deleteChallenge(id);
   }
 
   @Get('my-challenges')
@@ -32,14 +32,14 @@ export class ChallengeController {
     return this.challengeService.getUserChallenges(req.user.id);
   }
 
-  @Post('toggle/:challengeName')
+  @Post('toggle/:challengeid')
   async toggleChallenge(
     @Req() req,
-    @Param('challengeName') challengeName: string,
+    @Param('challengeid') challengeid: number,
   ) {
     return this.challengeService.completeChallengeToggle(
       req.user.id,
-      challengeName,
+      challengeid,
     );
   }
 }

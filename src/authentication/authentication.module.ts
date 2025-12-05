@@ -8,12 +8,14 @@ import { AuthTokensService } from './service/tokens.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { User } from '../entities/user.entity';
 import { CategoryModule } from '../category/category.module';
+import { ChallengeModule } from '../challenge/challenge.module';
 
 @Module({
   imports: [
     ConfigModule, 
     TypeOrmModule.forFeature([User]),
     CategoryModule,
+    ChallengeModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -1,6 +1,10 @@
-import { Injectable, BadRequestException, NotFoundException} from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Category } from '../entities/category.entity';
 import { User } from '../entities/user.entity';
 import { UserCategory } from '../entities/user_category.entity';
@@ -17,12 +21,11 @@ export class CategoryService {
   ) {}
 
   async createCategory(name: string) {
-    if (!name || !name.trim()) 
+    if (!name || !name.trim())
       throw new BadRequestException('Category name is required');
 
     const existing = await this.categoryRepo.findOne({ where: { name } });
-    if (existing) 
-      throw new BadRequestException('Category already exists');
+    if (existing) throw new BadRequestException('Category already exists');
 
     const category = this.categoryRepo.create({ name });
     return this.categoryRepo.save(category);
@@ -30,8 +33,7 @@ export class CategoryService {
 
   async deleteCategory(id: number) {
     const category = await this.categoryRepo.findOne({ where: { id } });
-    if (!category) 
-      throw new NotFoundException('Category not found');
+    if (!category) throw new NotFoundException('Category not found');
 
     await this.userCategoryRepo.delete({ category: { id } });
 
@@ -48,20 +50,28 @@ export class CategoryService {
   }
 
   async assignUserCategories(user: User, categoryIds: number[]) {
-    const categories = await this.categoryRepo.findByIds(categoryIds);
+    console.log("assignUserCategories CALLED");
 
-    const userCategories = categories.map((category) =>
-      this.userCategoryRepo.create({ user, category }),
+    const categories = await this.categoryRepo.find({
+      where: { id: In(categoryIds) },
+      relations: {
+        challengeCategories: { challenge: true },
+      },
+    });
+    
+    const userCategories = categories.map((c) =>
+      this.userCategoryRepo.create({
+        user: { id: user.id },
+        category: { id: c.id },
+      }),
     );
 
     await this.userCategoryRepo.save(userCategories);
   }
 
-
   async getUserCategories(userId: number): Promise<Category[]> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) 
-      throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found');
 
     const userCategories = await this.userCategoryRepo.find({
       where: { user: { id: userId } },

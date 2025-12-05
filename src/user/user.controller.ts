@@ -1,6 +1,7 @@
 import { Controller, Get, UseGuards, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../authentication/jwt/jwt-auth.guard';
+import { log } from 'console';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -13,7 +14,7 @@ export class UserController {
   }
 
   @Get('statistics/:username')
-  async getUserStatistics(@Param('username') username: string) {
+  async getUserStatistics(@Param('username') username: string) {    
     return this.userService.getUserStatistics(username);
   }
 }

@@ -16,6 +16,7 @@ import { UserModule } from '../user/user.module';
     UserModule,
   ],
   controllers: [ChallengeController],
-  providers: [ChallengeService]
+  providers: [ChallengeService],
+  exports: [ChallengeService],
 })
 export class ChallengeModule {}

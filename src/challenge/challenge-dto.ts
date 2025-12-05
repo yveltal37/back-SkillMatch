@@ -4,3 +4,9 @@ export interface CreateChallengeDto {
   expirationDate: string;
   categoryIds: number[];
 }
+
+export interface ChallengeDto extends CreateChallengeDto{
+  categories: string[];
+  id: number;
+  isComplete: boolean;
+}

@@ -1,8 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  Unique,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Challenge } from './challenge.entity';
 
 @Entity('user_challenges')
+@Unique(['user', 'challenge'])
 export class UserChallenge {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,5 +23,5 @@ export class UserChallenge {
   challenge: Challenge;
 
   @Column({ default: false })
-  completed: boolean;
+  isCompleted: boolean;
 }

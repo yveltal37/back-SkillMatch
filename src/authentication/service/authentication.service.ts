@@ -8,6 +8,7 @@ import { AuthTokensService } from './tokens.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CategoryService } from '../../category/category.service';
+import { ChallengeService } from 'src/challenge/challenge.service';
 
 @Injectable()
 export class AuthenticationService {
@@ -18,11 +19,11 @@ export class AuthenticationService {
     private readonly configService: ConfigService,
     private readonly authTokensService: AuthTokensService,
     private readonly categoryService: CategoryService,
+    private readonly challengeService:ChallengeService,
   ) {}
 
   async signup(signupDto: SignupDto) {
     const { username, password, categoryIds } = signupDto;
-    
     if(!username)
         throw new BadRequestException('Username is required');
     if(!password)
@@ -45,6 +46,9 @@ export class AuthenticationService {
     const savedUser = await this.userRepo.save(user);
 
     await this.categoryService.assignUserCategories(user, signupDto.categoryIds);
+
+    await this.challengeService.assignUserChallenges(savedUser.id, signupDto.categoryIds);
+
 
     const tokens = this.authTokensService.generateTokens(savedUser);
     return {tokens, user: {username: savedUser.username, isAdmin: savedUser.isAdmin}};
