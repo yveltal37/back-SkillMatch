@@ -62,6 +62,23 @@ export class ChallengeService {
   async assignChallengeToUsers(challengeId: number, categoryIds: number[]) {
     const userIds = await this.userService.getUserIdsByCategoryIds(categoryIds);
 
+    const challenge = await this.challengeRepo.findOne({
+      where: { id: challengeId },
+      relations: ['challengeCategories', 'challengeCategories.category'],
+    });
+
+    if (!challenge) throw new NotFoundException('Challenge not found');
+
+    const challengeDto: ChallengeDto = {
+      id: challenge.id,
+      name: challenge.name,
+      description: challenge.description,
+      expirationDate: challenge.expirationDate.toISOString(),
+      categoryIds: challenge.challengeCategories.map((cc) => cc.category.id),
+      categories: challenge.challengeCategories.map((cc) => cc.category.name),
+      isComplete: false,
+    };
+
     for (const userId of userIds) {
       const existing = await this.userChallengeRepo.findOne({
         where: { user: { id: userId }, challenge: { id: challengeId } },
@@ -73,10 +90,7 @@ export class ChallengeService {
         });
         await this.userChallengeRepo.save(userChallenge);
 
-        this.realtime.sendChallengeToUser(userId, {
-          challengeId,
-          message: 'New Challenge Assigned!',
-        });
+        this.realtime.sendChallengeToUser(userId, challengeDto);
       }
     }
   }

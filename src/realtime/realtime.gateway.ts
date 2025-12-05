@@ -6,6 +6,8 @@ import {
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
+import type { ChallengeDto } from 'src/challenge/challenge-dto';
+
 export type JwtPayload = { sub: number; username: string; isAdmin: boolean };
 
 @WebSocketGateway({
@@ -43,17 +45,7 @@ export class RealtimeGateway
     console.log(`Client disconnected: ${client.id}`);
   }
 
-  sendChallengeToUser(
-    userId: number,
-    data: {
-      challengeId: number;
-      message: string;
-    },
-  ) {
+  sendChallengeToUser(userId: number, data: ChallengeDto) {
     this.server.to(`user_${userId}`).emit('newChallenge', data);
-  }
-
-  sendChallengeToMultipleUsers(userIds: number[], data: any) {
-    userIds.forEach((id) => this.sendChallengeToUser(id, data));
   }
 }
