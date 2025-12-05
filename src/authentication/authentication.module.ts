@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -12,10 +12,10 @@ import { ChallengeModule } from '../challenge/challenge.module';
 
 @Module({
   imports: [
-    ConfigModule, 
+    ConfigModule,
     TypeOrmModule.forFeature([User]),
     CategoryModule,
-    ChallengeModule,
+    forwardRef(() => ChallengeModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

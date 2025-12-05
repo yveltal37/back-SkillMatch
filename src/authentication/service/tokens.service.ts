@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config'; 
 import { User } from '../../entities/user.entity';  
 import { JwtSignOptions } from '@nestjs/jwt'; 
- 
+
 @Injectable() 
 export class AuthTokensService { 
   constructor( 

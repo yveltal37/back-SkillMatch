@@ -11,6 +11,7 @@ import { ChallengeCategory } from '../entities/challenge_category.entity';
 import { UserChallenge } from '../entities/user_challenge.entity';
 import { CreateChallengeDto, ChallengeDto } from './challenge-dto';
 import { UserService } from '../user/user.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @Injectable()
 export class ChallengeService {
@@ -24,6 +25,7 @@ export class ChallengeService {
     @InjectRepository(UserChallenge)
     private userChallengeRepo: Repository<UserChallenge>,
     private readonly userService: UserService,
+    private readonly realtime: RealtimeGateway,
   ) {}
 
   async createChallenge(dto: CreateChallengeDto) {
@@ -70,6 +72,11 @@ export class ChallengeService {
           challenge: { id: challengeId },
         });
         await this.userChallengeRepo.save(userChallenge);
+
+        this.realtime.sendChallengeToUser(userId, {
+          challengeId,
+          message: 'New Challenge Assigned!',
+        });
       }
     }
   }
@@ -133,7 +140,6 @@ export class ChallengeService {
   }
 
   async completeChallengeToggle(userId: number, challengeid: number) {
-
     const challenge = await this.challengeRepo.findOne({
       where: { id: challengeid },
       relations: ['challengeCategories', 'challengeCategories.category'],

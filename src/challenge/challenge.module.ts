@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ChallengeController } from './challenge.controller';
 import { ChallengeService } from './challenge.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,11 +9,13 @@ import { User } from '../entities/user.entity';
 import { UserChallenge } from '../entities/user_challenge.entity';
 import { UserCategory } from '../entities/user_category.entity';
 import { UserModule } from '../user/user.module';
+import { RealtimeModule } from 'src/realtime/realtime.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Category, User, UserCategory, Challenge, ChallengeCategory, UserChallenge]),
     UserModule,
+    forwardRef(() => RealtimeModule),
   ],
   controllers: [ChallengeController],
   providers: [ChallengeService],
